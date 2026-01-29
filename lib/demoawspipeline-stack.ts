@@ -11,7 +11,7 @@ export class DemoawspipelineStack extends cdk.Stack {
     super(scope, id, props);
 
     // The code that defines your stack goes here
-    const sourceArtifact = new codepipeline.Artifact('MySourceArtifact');
+    const auth = cdk.SecretValue.secretsManager('my-github-token')
 
     const democicdpipeline = new pipelines.CodePipeline(this, 'DemoPipeline', {
       synth: new pipelines.ShellStep('Synth', {
@@ -19,7 +19,10 @@ export class DemoawspipelineStack extends cdk.Stack {
         // Other sources are available.
         input: pipelines.CodePipelineSource.gitHub(
           'Giskardmx/demoawspipeline',
-          'main'
+          'main',
+          {
+            authentication: auth
+          }
         ),
         commands: ['npm ci', 'npm run build', 'npx cdk synth'],
       }),
