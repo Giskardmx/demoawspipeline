@@ -3,6 +3,7 @@ import { Construct } from 'constructs';
 
 import * as pipelines from 'aws-cdk-lib/pipelines';
 import * as codepipeline from 'aws-cdk-lib/aws-codepipeline';
+import { PipelineAppStage } from './demoawspipeline-app-stack';
 
 declare const codePipeline: codepipeline.Pipeline;
 
@@ -27,9 +28,16 @@ export class DemoawspipelineStack extends cdk.Stack {
         commands: ['npm ci', 'npm run build', 'npx cdk synth'],
       }),
     });
-    // example resource
-    // const queue = new sqs.Queue(this, 'DemoawspipelineQueue', {
-    //   visibilityTimeout: cdk.Duration.seconds(300)
-    // });
+
+    const testStage = democicdpipeline.addStage(new PipelineAppStage(this, 'test', {
+      env: { account: '692485458325', region: 'us-east-2' }
+    }));
+
+    testStage.addPost(new pipelines.ManualApprovalStep('approval'));
+
+    const prodStage = democicdpipeline.addStage(new PipelineAppStage(this, 'prod', {
+      env: { account: '692485458325', region: 'us-east-2' }
+    }));
+    
   }
 }
